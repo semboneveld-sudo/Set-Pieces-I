@@ -1,0 +1,156 @@
+1. GAME OVERVIEW
+
+This is a deterministic, chess-like strategy game inspired by football tactics.
+
+Two teams. Each team has 11 pieces: 1 Goalkeeper (GK), Defenders (DF), Midfielders (MF), Attackers (AT).
+
+The game is fully deterministic. The only randomness is which starting Midfielder begins with the ball. The game ends immediately when a goal is scored.
+
+2. TURN STRUCTURE
+
+The starting team is determined by randomly selecting one Midfielder to begin with the ball. That team takes the first turn.
+
+Each turn: The player has 9 Action Points (AP). Actions reduce AP.
+
+The turn ends when: AP reaches 0, OR the player voluntarily ends the turn.
+
+3. FIELD LAYOUT
+
+Board size: 13 tiles wide, 18 tiles long.
+
+Team 0 (Blue, top, attacks down toward y=17):
+GK: (6, 1)
+DFs: (2, 3), (4, 3), (6, 3), (8, 3)
+MFs: (3, 5), (6, 5), (9, 5)
+ATs: (3, 7), (6, 7), (9, 7)
+Team 1 (Red, bottom, attacks up toward y=0):
+ATs: (3, 10), (6, 10), (9, 10)
+MFs: (3, 12), (6, 12), (9, 12)
+DFs: (2, 14), (4, 14), (6, 14), (8, 14)
+GK: (6, 16)
+
+Rules:
+- Only the defending Goalkeeper may enter its own Penalty Box.
+- Opposing team may shoot into Penalty Box or Goal tiles.
+- No piece may enter Goal tiles.
+- Borders are impassable.
+- The field is mirrored for both teams.
+
+4. PIECE ATTRIBUTES
+
+Each piece has: Strength, Move Range, Pass Range, Shoot Range, Move Cost, Pass Cost, Shoot Cost, Tackle Cost.
+
+Strength affects only tackle resolution.
+
+PIECE STATS TABLE:
+
+GK: Strength 6, Move Range 1, Pass Range 4, Shoot Range 3, Move Cost 2, Pass Cost 2, Shoot Cost 5, Tackle Cost 3
+DF: Strength 6, Move Range 1, Pass Range 2, Shoot Range 3, Move Cost 2, Pass Cost 2, Shoot Cost 5, Tackle Cost 2
+MF: Strength 5, Move Range 2, Pass Range 4, Shoot Range 3, Move Cost 3, Pass Cost 1, Shoot Cost 4, Tackle Cost 2
+AT: Strength 4, Move Range 2, Pass Range 2, Shoot Range 4, Move Cost 3, Pass Cost 2, Shoot Cost 3, Tackle Cost 2
+
+5. MOVEMENT RULES
+
+General rules:
+- A piece cannot move outside the field.
+- A piece cannot move onto an occupied tile.
+- A piece cannot move onto a Goal tile.
+- Moving onto a tile containing the ball immediately grants possession.
+- Ball pickup costs no additional AP beyond the movement cost.
+- Only a defending Goalkeeper may enter its own Penalty Box.
+- All movement costs a flat AP cost per action (distance does not change cost).
+
+5.1 Defender & Goalkeeper Movement
+
+Movement pattern: Identical to a Chess King. Move exactly 1 tile in any of 8 directions.
+
+Blocking: Cannot move through pieces. Destination tile must be unoccupied.
+
+Goalkeeper restriction: May only move inside its own Penalty Box. Cannot leave it.
+
+5.2 Midfielder Movement
+
+Movement pattern: Like a Chess Queen, up to 2 tiles. May move: Horizontally, Vertically, Diagonally. Cannot change direction mid-move. Distance: 1 or 2 tiles.
+
+Blocking: Cannot move through ANY piece. If first tile is occupied, cannot move further. Destination must be unoccupied.
+
+5.3 Attacker Movement
+
+Movement pattern: Any tile within Chebyshev distance ≤ 2. This forms a 5x5 square centered on the Attacker.
+
+Rules: May ignore blocking pieces. May move "around", "through", or "over" pieces. Line of sight is NOT required. Destination tile must be unoccupied. Distance does not change AP cost. This movement is not directional — any tile in range is valid.
+
+6. PASSING RULES
+
+All pieces pass using Queen-like straight lines: Horizontal, Vertical, Diagonal. Up to Pass Range.
+
+General rules:
+- Cannot pass into Goal tiles.
+- May pass into: Allied piece, Enemy piece, Empty field tile.
+- Passing to empty tile leaves ball on ground. Ball remains until picked up.
+- No interception system exists.
+
+Blocking rules:
+- Cannot pass through allied pieces.
+- May pass through enemy pieces.
+- If an allied piece is on the path before target tile: Pass cannot go beyond that tile.
+- Enemy pieces do NOT block passing.
+
+7. BALL STATE
+
+The ball can be: In possession of a piece, OR On an empty field tile.
+
+Loose Ball Rules: Remains indefinitely until picked up. Any piece moving onto that tile gains possession automatically. No extra AP required.
+
+Goalkeeper: May pick up loose ball inside its Penalty Box. Must still follow movement rules.
+
+8. TACKLING RULES
+
+A tackle may be performed if: Tackler is in one of 8 adjacent tiles to ball holder.
+
+Cost: Tackler spends its Tackle Cost.
+
+Strength Calculation: Total Tackle Strength = Sum of strengths of ALL allied pieces adjacent to the ball holder at the moment of tackle. Only ONE piece performs the tackle and spends AP. All adjacent allies contribute strength automatically. They do NOT spend AP.
+
+Resolution:
+- If Total Tackle Strength > Holder Strength: Tackle succeeds. Tackler swaps positions with holder. Tackler gains possession. Tackler becomes Engaged.
+- If Total Tackle Strength ≤ Holder Strength: Tackle fails. No positional change. Tackler loses AP cost.
+
+Multiple Tackles: If AP allows, any adjacent allied piece may attempt another tackle in the same turn.
+
+9. ENGAGED STATE
+
+When a tackle succeeds: Tackler becomes Engaged.
+
+Effects: Engaged piece cannot lose possession to tackles during the opponent's next turn. Any tackle attempt against it automatically fails. Engaged piece may still: Move, Pass, Shoot, Tackle.
+
+Duration:
+- Turn N: Successful tackle → Engaged
+- Turn N+1: Opponent turn → Immune
+- Turn N+2: Engagement removed at start of original player's turn
+
+Duration = exactly one full enemy turn.
+
+10. SHOOTING RULES
+
+A shot may only be attempted if:
+- Target is enemy Penalty Box OR Goal tile.
+- Shooter has possession.
+- Target tile is within Shoot Range.
+- Path is unobstructed.
+
+Shooting directions allowed:
+- If attacking upward: North, North-East, North-West
+- If attacking downward: South, South-East, South-West
+
+Range: Distance measured in straight line. Cannot exceed Shoot Range.
+
+Blocking: Cannot shoot through ANY piece (ally or enemy). If a piece is in path before target tile → shot invalid.
+
+Goal Conditions: If shot path reaches Goal tile → Goal is scored. Game immediately ends. No randomness. No goalkeeper contest. No defensive save mechanic. Fully deterministic.
+
+Distance requirement: Attackers (range 4) may shoot from 1 tile outside Penalty Box. All other pieces (range 3) must be 1 tile closer than attackers to shoot.
+
+11. DETERMINISM
+
+The game contains no randomness except: Initial Midfielder selection at game start. All actions resolve deterministically.
