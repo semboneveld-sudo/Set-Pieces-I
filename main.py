@@ -5,7 +5,7 @@ from rendering.renderer import draw
 
 pygame.init()
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Football Chess")
+pygame.display.set_caption("Set Pieces I")
 
 def main():
     clock = pygame.time.Clock()
@@ -18,6 +18,9 @@ def main():
         mx, my = pygame.mouse.get_pos()
         gx = mx // CELL_SIZE
         gy = my // CELL_SIZE
+
+        # Update goal animation (handles the 5 second wait, score, reset positions, and ball reset)
+        board.update_goal_animation()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

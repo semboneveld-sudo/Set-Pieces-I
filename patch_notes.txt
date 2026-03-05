@@ -1,0 +1,11 @@
+Set Pieces 1.0.0
+    -   Added everything
+
+Set Pieces 1.0.1
+    -   Goal scored animation now lasts 5 seconds
+        -   Score now counts up
+        -   Ball is now given to opposition
+        -   Formation is reset upon Goal
+    -   Balance change(s):
+        -   Midfielder:
+            -   Pass cost 1 > 2

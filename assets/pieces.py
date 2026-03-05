@@ -52,7 +52,7 @@ class Midfielder(Piece):
         self.move_range = 2
         self.pass_range = 4
         self.move_cost = 3
-        self.pass_cost = 1
+        self.pass_cost = 2
         self.shoot_cost = 4
         self.shoot_range = 3
 

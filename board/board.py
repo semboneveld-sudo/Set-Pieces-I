@@ -91,6 +91,22 @@ class Board:
         self.goal_timer = pygame.time.get_ticks()
         self.goal_animation_done = False
 
+    def reset_positions(self):
+        """Reset all pieces to their starting formation positions"""
+        # Store current scores
+        red_score = self.red_score
+        blue_score = self.blue_score
+        
+        # Create fresh formation
+        self.pieces = create_433_formation()
+        
+        # Restore scores
+        self.red_score = red_score
+        self.blue_score = blue_score
+        
+        # Clear any selection/state
+        self.clear_selection()
+
     def update_goal_animation(self):
         if not self.goal_scored:
             return
@@ -107,6 +123,9 @@ class Board:
                 else:
                     self.blue_score += 1
                     conceding_team = TEAM_RED
+
+                # Reset all positions first
+                self.reset_positions()
 
                 # Give ball to random midfielder on conceding team
                 mids = [p for p in self.pieces if isinstance(p, Midfielder) and p.team == conceding_team]
